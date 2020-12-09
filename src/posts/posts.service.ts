@@ -5,7 +5,7 @@ import UpdatePostDto from './dto/update-post.dto';
 
 import { DeleteResult, Repository } from 'typeorm';
 import { Post } from './post.entity';
-import { User } from 'src/users/user.entity';
+import { User } from '../users/user.entity';
 import PostUnathorizedException from '../exceptions/postUnauthorized.exception';
 import PostNotFoundException from '../exceptions/postNotFound.exception';
 
@@ -22,7 +22,19 @@ export class PostsService {
 
   async findOne(id: string): Promise<Post> {
     try {
-      return await this.postsRepository.findOne(id);
+      return await this.postsRepository.findOne(id, {
+        relations: ['author'],
+      });
+    } catch (error) {
+      throw new PostNotFoundException(id);
+    }
+  }
+
+  async findOneWithComments(id: string): Promise<Post> {
+    try {
+      return await this.postsRepository.findOne(id, {
+        relations: ['author', 'comments'],
+      });
     } catch (error) {
       throw new PostNotFoundException(id);
     }
@@ -32,6 +44,19 @@ export class PostsService {
     const newPost = this.postsRepository.create(createPostDto);
     newPost.author = currentUser;
     return newPost.save();
+  }
+
+  async createComment(
+    id: string,
+    createPostDto: CreatePostDto,
+    currentUser: User,
+  ): Promise<Post> {
+    const post = await this.findOne(id);
+
+    const newComment = this.postsRepository.create(createPostDto);
+    newComment.parent = post;
+    newComment.author = currentUser;
+    return newComment.save();
   }
 
   async update(

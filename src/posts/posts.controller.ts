@@ -13,7 +13,8 @@ import {
 } from '@nestjs/common';
 import RequestWithUser from '../auth/interfaces/requestWithUser.interface';
 import { PostsService } from './posts.service';
-import { PostResponse } from './interfaces/post.interface';
+import { Post as UserPost } from './post.entity';
+import { PostResponse, CommentResponse } from './interfaces/post.interface';
 import CreatePostDto from './dto/create-post.dto';
 import UpdatePostDto from './dto/update-post.dto';
 
@@ -30,8 +31,13 @@ export class PostsController {
   }
 
   @Get(':id')
-  public async getPost(@Param('id') id): Promise<PostResponse> {
+  public async getPost(@Param('id') id): Promise<UserPost> {
     return this.postsService.findOne(id);
+  }
+
+  @Get(':id/comments')
+  public async getPostWithComments(@Param('id') id): Promise<CommentResponse> {
+    return this.postsService.findOneWithComments(id);
   }
 
   @Post()
@@ -60,5 +66,15 @@ export class PostsController {
     @Req() req: RequestWithUser,
   ): Promise<any> {
     return this.postsService.delete(id, req.user);
+  }
+
+  @Post(':id/comment')
+  @UseGuards(JwtAuthenticationGuard)
+  public async createComment(
+    @Param('id') id,
+    @Body() postData: CreatePostDto,
+    @Req() req: RequestWithUser,
+  ): Promise<CommentResponse> {
+    return this.postsService.createComment(id, postData, req.user);
   }
 }

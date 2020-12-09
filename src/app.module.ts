@@ -7,7 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
-import { CommentsModule } from './comments/comments.module';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { typeOrmConfig } from './config/typeorm.config';
@@ -19,7 +19,6 @@ import { typeOrmConfig } from './config/typeorm.config';
     AuthModule,
     UsersModule,
     PostsModule,
-    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
