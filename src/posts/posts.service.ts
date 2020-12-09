@@ -7,6 +7,7 @@ import { DeleteResult, Repository } from 'typeorm';
 import { Post } from './post.entity';
 import { User } from 'src/users/user.entity';
 import PostUnathorizedException from '../exceptions/postUnauthorized.exception';
+import PostNotFoundException from '../exceptions/postNotFound.exception';
 
 @Injectable()
 export class PostsService {
@@ -19,8 +20,12 @@ export class PostsService {
     return this.postsRepository.find();
   }
 
-  findOne(id: string): Promise<Post> {
-    return this.postsRepository.findOne(id);
+  async findOne(id: string): Promise<Post> {
+    try {
+      return await this.postsRepository.findOne(id);
+    } catch (error) {
+      throw new PostNotFoundException(id);
+    }
   }
 
   async create(createPostDto: CreatePostDto, currentUser: User): Promise<Post> {
@@ -29,17 +34,19 @@ export class PostsService {
     return newPost.save();
   }
 
-  // async update(
-  //   id: string,
-  //   updatePostDto: UpdatePostDto,
-  //   currentUser: User,
-  // ): Promise<Post> {
-  //   const post = await this.findOne(id);
-  //   if (post && this.isOwner(post, currentUser)) {
-  //     return await this.postsRepository.update(id, updatePostDto);
-  //   }
-  //   throw new PostUnathorizedException(id);
-  // }
+  async update(
+    id: string,
+    updatePostDto: UpdatePostDto,
+    currentUser: User,
+  ): Promise<Post> {
+    const post = await this.findOne(id);
+
+    if (post && this.isOwner(post, currentUser)) {
+      await this.postsRepository.update(id, updatePostDto);
+      return this.postsRepository.findOne(id);
+    }
+    throw new PostUnathorizedException(id);
+  }
 
   async delete(id: string, currentUser: User): Promise<DeleteResult> {
     const post = await this.findOne(id);
