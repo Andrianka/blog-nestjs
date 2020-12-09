@@ -3,11 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import CreatePostDto from './dto/create-post.dto';
 import UpdatePostDto from './dto/update-post.dto';
 
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Post } from './post.entity';
 import { User } from 'src/users/user.entity';
-import UpdateUserDto from 'src/users/dto/update-user.dto';
-import UnauthorizedException from '../exceptions/productUnauthorized.exception';
+import PostUnathorizedException from '../exceptions/postUnauthorized.exception';
 
 @Injectable()
 export class PostsService {
@@ -24,22 +23,28 @@ export class PostsService {
     return this.postsRepository.findOne(id);
   }
 
-  async create(userData: CreatePostDto, currentUser: User): Promise<Post> {
-    const newPost = this.postsRepository.create(userData);
+  async create(createPostDto: CreatePostDto, currentUser: User): Promise<Post> {
+    const newPost = this.postsRepository.create(createPostDto);
     newPost.author = currentUser;
     return newPost.save();
   }
 
-  async update(id: string, postDto: UpdatePostDto): Promise<UpdateResult> {
-    const post = this.findOne(id);
-    if (post) {
-      return await this.postsRepository.update(id, postDto);
-    }
-  }
+  // async update(
+  //   id: string,
+  //   updatePostDto: UpdatePostDto,
+  //   currentUser: User,
+  // ): Promise<Post> {
+  //   const post = await this.findOne(id);
+  //   if (post && this.isOwner(post, currentUser)) {
+  //     return await this.postsRepository.update(id, updatePostDto);
+  //   }
+  //   throw new PostUnathorizedException(id);
+  // }
 
   async delete(id: string, currentUser: User): Promise<DeleteResult> {
     const post = await this.findOne(id);
-    if (!this.isOwner(post, currentUser)) throw new UnauthorizedException(id);
+    if (!this.isOwner(post, currentUser))
+      throw new PostUnathorizedException(id);
     return await this.postsRepository.delete(id);
   }
 

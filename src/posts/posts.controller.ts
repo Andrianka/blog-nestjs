@@ -8,7 +8,6 @@ import {
   Patch,
   ClassSerializerInterceptor,
   UseInterceptors,
-  Res,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -44,15 +43,16 @@ export class PostsController {
     return this.postsService.create(postData, req.user);
   }
 
-  //   @Patch(':id')
-  //   @UseGuards(JwtAuthenticationGuard)
-  //   public async update(
-  //     @Param('id') id,
-  //     @Body() postData: UpdatePostDto,
-  //     @Req() req: RequestWithUser,
-  //   ): Promise<PostResponse> {
-  //     return this.postsService.update(postData, req.user);
-  //   }
+  // @Patch(':id')
+  // @UseGuards(JwtAuthenticationGuard)
+  // public async update(
+  //   @Param('id') id,
+  //   @Body() postData: UpdatePostDto,
+  //   @Req() req: RequestWithUser,
+  // ): Promise<PostResponse> {
+  //   return this.postsService.update(id, postData, req.user);
+  // }
+
   @Delete(':id')
   @UseGuards(JwtAuthenticationGuard)
   public async delete(

@@ -3,8 +3,8 @@ import { CreateUserInterface } from '../interfaces/create-user.interface';
 
 class CreateUserDto implements CreateUserInterface {
   @IsNotEmpty() @IsEmail() email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   @IsNotEmpty() password: string;
 }
 

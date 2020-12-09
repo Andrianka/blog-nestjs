@@ -66,13 +66,6 @@ export class AuthService {
       );
     }
     try {
-      // const hashedPassword = await bcrypt.hash(userData.password, 10);
-      // const createdUser = await this.usersService.create({
-      //   ...userData,
-      //   password: hashedPassword,
-      // });
-      // const { password, ...result } = createdUser;
-      // return result;
       return await this.usersService.create(userData);
     } catch (error) {
       throw new HttpException(
